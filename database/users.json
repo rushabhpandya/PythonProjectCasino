@@ -1,1 +1,9 @@
-[]
+{
+  "Rushabh": {
+    "password": "Berserk",
+    "balance": 1000,
+    "wins": 0,
+    "losses": 0,
+    "joined": "2026-03-23"
+  }
+}
