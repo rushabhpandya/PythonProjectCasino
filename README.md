@@ -32,20 +32,11 @@ A feature-rich virtual casino platform built in Python.
 ```
 
 ## 👥 Team
-- Member 1 - Rushabh Pandya
-- Member 2
-- Member 3
+- Member 1 - Rushabh Pandya B039
+- Member 2 - Vivaan Shah B057
+- Member 3 - Jaival Prajapati B064
 
 ## 💰 Starting Balance
 Every player starts with **$1000** virtual currency.
 ```
 
-Save, then push it:
-```
-git add .
-```
-```
-git commit -m "Update README with all features"
-```
-```
-git push origin main
