@@ -5,5 +5,12 @@
     "wins": 0,
     "losses": 0,
     "joined": "2026-03-23"
+  },
+  "Arif": {
+    "password": "arif",
+    "balance": 4200,
+    "wins": 3,
+    "losses": 1,
+    "joined": "2026-03-23"
   }
 }

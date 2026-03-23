@@ -23,9 +23,46 @@ def hand_value(hand):
 
 def display_hand(name, hand, hide_second=False):
     if hide_second:
-        print(f"{name}'s hand: [{hand[0]}, ???]")
+        print(f"  {name}: [{hand[0]}, ???]")
     else:
-        print(f"{name}'s hand: {hand} = {hand_value(hand)}")
+        print(f"  {name}: {hand} = {hand_value(hand)}")
+
+def play_hand(hand, name, balance, bet):
+    while True:
+        display_hand(name, hand)
+        if hand_value(hand) == 21:
+            print(f"  🎉 Blackjack on {name}!")
+            break
+        if hand_value(hand) > 21:
+            print(f"  💥 {name} busted!")
+            break
+
+        print(f"\n  {name} options:")
+        print("    1. Hit")
+        print("    2. Stand")
+        if len(hand) == 2 and balance >= bet * 2:
+            print("    3. Double Down")
+
+        action = input("  Your choice: ")
+
+        if action == "1":
+            hand.append(get_card())
+            display_hand(name, hand)
+            if hand_value(hand) > 21:
+                print(f"  💥 {name} busted!")
+                break
+
+        elif action == "2":
+            break
+
+        elif action == "3" and len(hand) == 2:
+            bet *= 2
+            hand.append(get_card())
+            print(f"  💰 Bet doubled to ${bet}")
+            display_hand(name, hand)
+            break
+
+    return hand, bet
 
 def play_blackjack(balance):
     print("\n" + "="*40)
@@ -57,82 +94,72 @@ def play_blackjack(balance):
     display_hand("You", player)
     display_hand("Dealer", dealer, hide_second=True)
 
-    # Check for blackjack
+    # Blackjack check
     if hand_value(player) == 21:
         print("\n🎉 BLACKJACK! You win instantly!")
-        balance += int(bet * 1.5)
-        print(f"✅ You WON! +${int(bet * 1.5)}")
+        payout = int(bet * 1.5)
+        balance += payout
+        print(f"✅ You WON! +${payout}")
         print(f"💰 New balance: ${balance}")
         return balance
 
-    # Player turn
-    while True:
-        print("\nWhat do you want to do?")
-        print("  1. Hit")
-        print("  2. Stand")
-        if len(player) == 2 and balance >= bet * 2:
-            print("  3. Double Down")
+    # Split option
+    hands = [player]
+    bets = [bet]
 
-        action = input("Your choice: ")
+    if player[0] == player[1] and balance >= bet * 2:
+        print(f"\n✂️  You have a pair of {player[0]}s!")
+        split = input("Do you want to SPLIT? (y/n): ")
+        if split.lower() == "y":
+            hands = [[player[0], get_card()], [player[1], get_card()]]
+            bets = [bet, bet]
+            balance -= bet
+            print(f"💰 Split! Playing 2 hands. Balance: ${balance}")
 
-        if action == "1":
-            player.append(get_card())
-            display_hand("You", player)
-            if hand_value(player) > 21:
-                print("💥 BUST! You went over 21!")
-                balance -= bet
-                print(f"❌ You LOST! -${bet}")
-                print(f"💰 New balance: ${balance}")
-                return balance
-
-        elif action == "2":
-            break
-
-        elif action == "3" and len(player) == 2:
-            bet *= 2
-            player.append(get_card())
-            display_hand("You", player)
-            print(f"💰 Bet doubled to ${bet}")
-            if hand_value(player) > 21:
-                print("💥 BUST! You went over 21!")
-                balance -= bet
-                print(f"❌ You LOST! -${bet}")
-                print(f"💰 New balance: ${balance}")
-                return balance
-            break
+    # Play each hand
+    final_hands = []
+    final_bets = []
+    for i, (hand, b) in enumerate(zip(hands, bets)):
+        if len(hands) > 1:
+            print(f"\n--- Hand {i+1} ---")
+        hand, b = play_hand(hand, f"Hand {i+1}" if len(hands) > 1 else "You", balance, b)
+        final_hands.append(hand)
+        final_bets.append(b)
 
     # Dealer turn
     print("\n--- Dealer's Turn ---")
     display_hand("Dealer", dealer)
-    time.sleep(1)
-
+    time.sleep(0.5)
     while hand_value(dealer) < 17:
-        print("Dealer hits...")
+        print("  Dealer hits...")
         time.sleep(0.5)
         dealer.append(get_card())
         display_hand("Dealer", dealer)
 
-    # Result
-    player_val = hand_value(player)
     dealer_val = hand_value(dealer)
 
-    print("\n--- Result ---")
-    print(f"Your hand: {player_val}")
-    print(f"Dealer hand: {dealer_val}")
+    # Results
+    print("\n--- Results ---")
+    for i, (hand, b) in enumerate(zip(final_hands, final_bets)):
+        label = f"Hand {i+1}" if len(final_hands) > 1 else "You"
+        player_val = hand_value(hand)
+        print(f"\n  {label}: {player_val} vs Dealer: {dealer_val}")
 
-    if dealer_val > 21:
-        print("💥 Dealer busts!")
-        balance += bet
-        print(f"✅ You WON! +${bet}")
-    elif player_val > dealer_val:
-        balance += bet
-        print(f"✅ You WON! +${bet}")
-    elif player_val < dealer_val:
-        balance -= bet
-        print(f"❌ You LOST! -${bet}")
-    else:
-        print("🤝 It's a TIE! Bet returned.")
+        if player_val > 21:
+            balance -= b
+            print(f"  💥 Bust! -${b}")
+        elif dealer_val > 21:
+            balance += b
+            print(f"  ✅ Dealer busts! +${b}")
+        elif player_val > dealer_val:
+            balance += b
+            print(f"  ✅ You win! +${b}")
+        elif player_val < dealer_val:
+            balance -= b
+            print(f"  ❌ You lose! -${b}")
+        else:
+            print(f"  🤝 Tie! Bet returned.")
 
-    print(f"💰 New balance: ${balance}")
+    print(f"\n💰 New balance: ${balance}")
     print("="*40)
     return balance

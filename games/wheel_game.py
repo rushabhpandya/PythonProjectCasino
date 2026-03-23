@@ -12,11 +12,11 @@ def play_wheel(balance):
 
     print(f"\n💰 Your balance: ${balance}")
     print("\nWheel segments:")
-    print("  🔴 0x  - Lose (3 segments)")
-    print("  🟡 1.5x - Small win (2 segments)")
-    print("  🟢 2x  - Win (2 segments)")
-    print("  🔵 3x  - Big win (1 segment)")
-    print("  💎 5x  - Jackpot (1 segment)")
+    print("  🔴 0x   - Lose       (3 segments)")
+    print("  🟡 1.5x - Small win  (2 segments)")
+    print("  🟢 2x   - Win        (2 segments)")
+    print("  🔵 3x   - Big win    (1 segment)")
+    print("  💎 5x   - JACKPOT    (1 segment)")
 
     while True:
         try:
@@ -31,33 +31,39 @@ def play_wheel(balance):
             print("❌ Enter a valid number!")
 
     wheel = [0, 0, 0, 1.5, 1.5, 2, 2, 3, 5]
-    
-    print("\nSpinning the wheel", end="")
-    for _ in range(5):
-        time.sleep(0.4)
-        print(".", end="", flush=True)
-    print()
+    segments = ["🔴 0x", "🔴 0x", "🔴 0x", "🟡 1.5x", "🟡 1.5x", "🟢 2x", "🟢 2x", "🔵 3x", "💎 5x"]
 
-    # Spinning animation
-    for _ in range(6):
-        fake = random.choice(wheel)
-        print(f"\r🎡 ...{fake}x...", end="", flush=True)
-        time.sleep(0.3)
+    print("\n🎡 Spinning the wheel...\n")
+    time.sleep(0.5)
 
-    result = random.choice(wheel)
-    print(f"\r🎡 Landed on: {result}x!     ")
+    # Animation
+    spins = 20
+    delay = 0.05
+    for i in range(spins):
+        idx = random.randint(0, len(segments)-1)
+        print(f"\r  ▶ {segments[idx]}  ◀   ", end="", flush=True)
+        time.sleep(delay)
+        delay += 0.02
+
+    # Final result
+    final_idx = random.randint(0, len(wheel)-1)
+    result = wheel[final_idx]
+    print(f"\r  ▶ {segments[final_idx]}  ◀   ")
+    print("\n" + "🎡 " * 10)
+
+    time.sleep(0.5)
 
     if result == 0:
         balance -= bet
-        print(f"\n❌ You LOST! -{bet}")
+        print(f"\n💥 UNLUCKY! You lost ${bet}!")
     elif result == 5:
         winnings = int(bet * result)
         balance = balance - bet + winnings
-        print(f"\n💎 JACKPOT! You won ${winnings}!")
+        print(f"\n💎 JACKPOT!! You won ${winnings}! 🎉🎉🎉")
     else:
         winnings = int(bet * result)
         balance = balance - bet + winnings
-        print(f"\n✅ You WON ${winnings}!")
+        print(f"\n✅ Nice! You won ${winnings}! ({result}x)")
 
     print(f"💰 New balance: ${balance}")
     print("="*40)

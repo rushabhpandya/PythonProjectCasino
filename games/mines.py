@@ -33,33 +33,44 @@ def play_mines(balance):
         except ValueError:
             print("❌ Enter a valid number!")
 
-    # Setup 5x5 grid
     total_cells = 25
     mines = random.sample(range(total_cells), num_mines)
     revealed = []
     multiplier = 1.0
 
-    def display_grid():
-        print("\n  1 2 3 4 5")
+    def display_grid(reveal_all=False):
+        print("\n    1  2  3  4  5")
+        print("  " + "-"*16)
         for row in range(5):
-            print(f"{row+1} ", end="")
+            print(f"{row+1} |", end="")
             for col in range(5):
                 idx = row * 5 + col
                 if idx in revealed:
-                    print("💎 ", end="")
+                    if idx in mines:
+                        print("💣 ", end="")
+                    else:
+                        print("💎 ", end="")
+                elif reveal_all:
+                    if idx in mines:
+                        print("💣 ", end="")
+                    else:
+                        print("⬜ ", end="")
                 else:
                     print("⬜ ", end="")
-            print()
+            print("|")
+        print("  " + "-"*16)
 
     print("\n🎮 Reveal cells to increase your multiplier!")
     print("💣 Hit a mine and lose everything!")
-    print("💰 Cash out anytime to keep your winnings!\n")
+    print("💰 Cash out anytime to keep your winnings!")
+    print(f"⚠️  {num_mines} mines hidden in the grid!\n")
 
     while True:
         display_grid()
         gain = round(bet * multiplier, 2)
         print(f"\n📈 Current multiplier: {multiplier}x")
-        print(f"💰 Cash out value: ${gain}")
+        print(f"💰 Cash out value: ${int(gain)}")
+        print(f"💎 Cells revealed: {len(revealed)}")
         print("\nWhat do you want to do?")
         print("  1. Reveal a cell")
         print("  2. Cash out")
@@ -68,7 +79,8 @@ def play_mines(balance):
 
         if action == "2":
             balance = balance - bet + int(gain)
-            print(f"\n💰 Cashed out ${int(gain)}!")
+            print(f"\n✅ Smart move! Cashed out ${int(gain)}!")
+            display_grid(reveal_all=True)
             print(f"💰 New balance: ${balance}")
             print("="*40)
             return balance
@@ -91,14 +103,25 @@ def play_mines(balance):
 
             if idx in mines:
                 revealed.append(idx)
-                display_grid()
                 print("\n💥 BOOM! You hit a mine!")
+                time.sleep(0.5)
+                print("\n🔍 Revealing all mines...\n")
+                time.sleep(0.5)
+                display_grid(reveal_all=True)
                 balance -= bet
-                print(f"❌ You LOST! -${bet}")
+                print(f"\n❌ You LOST! -${bet}")
                 print(f"💰 New balance: ${balance}")
                 print("="*40)
                 return balance
             else:
                 revealed.append(idx)
                 multiplier = round(multiplier + (0.5 * num_mines), 2)
-                print(f"💎 Safe! Multiplier is now {multiplier}x!")
+                print(f"\n💎 Safe! Multiplier is now {multiplier}x!")
+
+        if len(revealed) == total_cells - num_mines:
+            print("\n🎉 YOU CLEARED THE ENTIRE BOARD!")
+            balance = balance - bet + int(bet * multiplier)
+            display_grid(reveal_all=True)
+            print(f"💰 New balance: ${balance}")
+            print("="*40)
+            return balance
